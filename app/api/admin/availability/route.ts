@@ -1,4 +1,5 @@
 import { getSlots, createSlot, deleteSlot } from "@/lib/data";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function GET() {
   const slots = await getSlots();
@@ -6,6 +7,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   const { date, startTime, endTime } = await request.json();
 
   if (!date || !startTime || !endTime) {
@@ -17,6 +21,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   const { id } = await request.json();
   if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
 

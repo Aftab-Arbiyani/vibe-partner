@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
+import { COUNTRIES } from "@/data/countries";
+import { SERVICE_DISPLAY_PRICE } from "@/lib/prices";
 
 type ServiceType = "async" | "live" | "monthly" | "pro";
 
@@ -13,24 +15,12 @@ interface Slot {
   endTime: string;
 }
 
-const COUNTRIES = [
-  "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", "Austria", "Bangladesh",
-  "Belgium", "Brazil", "Canada", "Chile", "China", "Colombia", "Czech Republic", "Denmark",
-  "Egypt", "Ethiopia", "Finland", "France", "Germany", "Ghana", "Greece", "Hungary", "India",
-  "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan", "Kazakhstan",
-  "Kenya", "Malaysia", "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway",
-  "Pakistan", "Peru", "Philippines", "Poland", "Portugal", "Romania", "Russia", "Saudi Arabia",
-  "Singapore", "South Africa", "South Korea", "Spain", "Sri Lanka", "Sweden", "Switzerland",
-  "Thailand", "Turkey", "Ukraine", "United Arab Emirates", "United Kingdom", "United States",
-  "Vietnam",
-];
-
 const SERVICES = [
   {
     id: "async" as ServiceType,
     icon: "📨",
     title: "Async Bug Fix",
-    price: "From $40",
+    price: SERVICE_DISPLAY_PRICE.async,
     description:
       "Share your error or repo. Get a complete written fix with explanation within 24 hours.",
   },
@@ -38,7 +28,7 @@ const SERVICES = [
     id: "live" as ServiceType,
     icon: "🎙️",
     title: "Live Pair Programming",
-    price: "From $60 / hr",
+    price: SERVICE_DISPLAY_PRICE.live,
     description:
       "Screen-share via Google Meet. Real-time problem solving with a senior developer.",
   },
@@ -46,7 +36,7 @@ const SERVICES = [
     id: "monthly" as ServiceType,
     icon: "🔁",
     title: "Monthly Retainer — Starter",
-    price: "$149 / mo",
+    price: SERVICE_DISPLAY_PRICE.monthly,
     description:
       "4 hours async + 1 live session per month. Priority replies. Cancel anytime.",
   },
@@ -54,9 +44,9 @@ const SERVICES = [
     id: "pro" as ServiceType,
     icon: "⚡",
     title: "Monthly Retainer — Pro",
-    price: "$299 / mo",
+    price: SERVICE_DISPLAY_PRICE.pro,
     description:
-      "10 hours async + 3 live sessions. Same-day SLA. Priority queue + dedicated Slack.",
+      "10 hours async + 3 live sessions. Same-day SLA. Priority queue + Teams & WhatsApp.",
   },
 ];
 
@@ -81,6 +71,7 @@ export default function BookPage() {
   const [email, setEmail] = useState("");
   const [country, setCountry] = useState("");
   const [timezone, setTimezone] = useState("");
+  const [slotsLoading, setSlotsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -96,14 +87,16 @@ export default function BookPage() {
 
   useEffect(() => {
     if (serviceType === "live") {
+      setSlotsLoading(true);
       fetch("/api/availability")
         .then((r) => r.json())
         .then(setSlots)
-        .catch(() => setSlots([]));
+        .catch(() => setSlots([]))
+        .finally(() => setSlotsLoading(false));
     }
   }, [serviceType]);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setSubmitting(true);
@@ -140,6 +133,7 @@ export default function BookPage() {
 
   const canProceedStep2 =
     description.trim().length >= 10 &&
+    !slotsLoading &&
     (serviceType !== "live" || slots.length === 0 || slotId !== "");
 
   return (
@@ -300,7 +294,11 @@ export default function BookPage() {
                     <label className="block text-sm font-medium text-gray-400 mb-2">
                       Pick a time slot <span className="text-indigo-400 ml-1">*</span>
                     </label>
-                    {slots.length === 0 ? (
+                    {slotsLoading ? (
+                      <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-5 text-gray-500 text-sm text-center animate-pulse">
+                        Loading available slots…
+                      </div>
+                    ) : slots.length === 0 ? (
                       <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-5 text-gray-500 text-sm text-center">
                         No slots available right now. Select Async Fix instead, or check back soon.
                       </div>

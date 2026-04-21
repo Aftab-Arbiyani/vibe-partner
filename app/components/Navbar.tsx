@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -9,26 +10,26 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0D0D0D]/80 backdrop-blur-md border-b border-white/10">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="text-xl font-bold gradient-text">
+        <Link href="/" className="text-xl font-bold gradient-text">
           VibePartner
-        </a>
+        </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
-          <a href="#services" className="hover:text-white transition-colors">Services</a>
-          <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+          <Link href="/#services" className="hover:text-white transition-colors">Services</Link>
+          <Link href="/#how-it-works" className="hover:text-white transition-colors">How It Works</Link>
+          <Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link>
+          <Link href="/#faq" className="hover:text-white transition-colors">FAQ</Link>
         </div>
 
         {/* CTA */}
         <div className="hidden md:block">
-          <a
+          <Link
             href="/book"
             className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
           >
             Get Started
-          </a>
+          </Link>
         </div>
 
         {/* Mobile menu button */}
@@ -52,17 +53,17 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-[#0D0D0D] border-t border-white/10 px-6 py-4 flex flex-col gap-4 text-sm text-gray-400">
-          <a href="#services" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Services</a>
-          <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">How It Works</a>
-          <a href="#pricing" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Pricing</a>
-          <a href="#faq" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">FAQ</a>
-          <a
+          <Link href="/#services" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Services</Link>
+          <Link href="/#how-it-works" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">How It Works</Link>
+          <Link href="/#pricing" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Pricing</Link>
+          <Link href="/#faq" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">FAQ</Link>
+          <Link
             href="/book"
             onClick={() => setMenuOpen(false)}
             className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2.5 rounded-lg text-center transition-colors"
           >
             Get Started
-          </a>
+          </Link>
         </div>
       )}
     </nav>

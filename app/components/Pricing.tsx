@@ -38,7 +38,7 @@ const plans = [
       "10 hours async support",
       "3 live pair programming sessions",
       "Same-day response SLA",
-      "Priority queue + dedicated Slack",
+      "Priority queue + Teams & WhatsApp",
     ],
     cta: "Go Pro",
     href: "/book?service=pro",
