@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  if (!(serviceType in PRICES)) {
+  if (!(serviceType in PRICES_CENTS)) {
     return Response.json({ error: "Invalid service type" }, { status: 400 });
   }
 
