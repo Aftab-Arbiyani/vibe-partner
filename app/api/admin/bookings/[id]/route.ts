@@ -1,5 +1,6 @@
 import { getBookingById, updateBookingStatus, markSlotAvailable, getSlots } from "@/lib/data";
 import { sendCancellationEmail } from "@/lib/mailer";
+import { requireAdmin } from "@/lib/admin-auth";
 import type { BookingStatus } from "@/lib/data";
 
 const VALID_STATUSES: BookingStatus[] = ["pending", "confirmed", "completed", "cancelled"];
@@ -8,6 +9,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   const { id } = await params;
   const { status, refundAmount } = await request.json();
 

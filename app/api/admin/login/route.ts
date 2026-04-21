@@ -1,3 +1,5 @@
+import { createHash } from "crypto";
+
 export async function POST(request: Request) {
   const { password } = await request.json();
 
@@ -9,25 +11,25 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid password" }, { status: 401 });
   }
 
-  const response = Response.json({ success: true });
-  const headers = new Headers(response.headers);
+  const token = createHash("sha256")
+    .update(`admin-session:${process.env.ADMIN_PASSWORD}`)
+    .digest("hex");
 
   const isProduction = process.env.NODE_ENV === "production";
   const cookieValue = [
-    `admin_auth=${process.env.ADMIN_PASSWORD}`,
+    `admin_auth=${token}`,
     "Path=/",
     "HttpOnly",
     "SameSite=Strict",
-    `Max-Age=${60 * 60 * 24 * 7}`, // 7 days
+    `Max-Age=${60 * 60 * 24 * 7}`,
     isProduction ? "Secure" : "",
   ]
     .filter(Boolean)
     .join("; ");
 
-  headers.set("Set-Cookie", cookieValue);
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
-    headers,
+    headers: { "Set-Cookie": cookieValue },
   });
 }
 

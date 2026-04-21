@@ -1,20 +1,7 @@
 import { stripe } from "@/lib/stripe";
 import { createBookingAwaitingPayment, getSlots } from "@/lib/data";
+import { PRICES_CENTS, SERVICE_LABELS } from "@/lib/prices";
 import type { ServiceType } from "@/lib/data";
-
-const PRICES: Record<ServiceType, number> = {
-  async: 4000,    // $40.00
-  live: 6000,     // $60.00
-  monthly: 14900, // $149.00
-  pro: 29900,     // $299.00
-};
-
-const SERVICE_LABELS: Record<ServiceType, string> = {
-  async: "Async Bug Fix",
-  live: "Live Pair Programming Session",
-  monthly: "Monthly Retainer — Starter",
-  pro: "Monthly Retainer — Pro",
-};
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -68,7 +55,7 @@ export async function POST(request: Request) {
       {
         price_data: {
           currency: "usd",
-          unit_amount: PRICES[serviceType as ServiceType],
+          unit_amount: PRICES_CENTS[serviceType as ServiceType],
           product_data: {
             name: SERVICE_LABELS[serviceType as ServiceType],
             description: description.slice(0, 200),
