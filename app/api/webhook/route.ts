@@ -9,10 +9,21 @@ import {
   logWebhookEvent,
 } from "@/lib/data";
 import {
+  getSkillById,
+  createPurchase,
+  getPurchaseBySessionId,
+  getCustomRequestById,
+  updateCustomRequestStatus,
+} from "@/lib/skills-data";
+import { generateSignedUrl } from "@/lib/storage";
+import {
   sendOwnerNotification,
   sendUserConfirmation,
   sendPaymentFailedOwnerAlert,
   sendDisputeOwnerAlert,
+  sendSkillPurchaseEmail,
+  sendCustomRequestUserConfirmation,
+  sendCustomRequestAdminNotification,
 } from "@/lib/mailer";
 
 export async function POST(request: Request) {
@@ -31,7 +42,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // Log every verified event — bookingId extracted from metadata where available
+  // Log every verified event (uses Stripe event ID as doc ID for deduplication)
   const topLevelObj = event.data.object as unknown as Record<string, unknown>;
   const metaBookingId =
     (topLevelObj?.metadata as Record<string, string> | undefined)?.bookingId ?? null;
@@ -42,62 +53,176 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object;
-      const bookingId = session.metadata?.bookingId;
+      const type = session.metadata?.type;
 
-      if (!bookingId) {
-        console.error("No bookingId in session metadata");
-        return Response.json({ error: "Missing bookingId" }, { status: 400 });
-      }
-
-      // Activate booking (sets status from awaiting_payment → pending)
-      const booking = await activateBooking(bookingId);
-      if (!booking) {
-        console.error("Booking not found:", bookingId);
-        return Response.json({ error: "Booking not found" }, { status: 404 });
-      }
-
-      // Mark slot as booked
-      if (booking.slotId) {
-        await markSlotBooked(booking.slotId);
-      }
-
-      // Build slot label for emails
-      let slotLabel: string | undefined;
-      if (booking.slotId) {
-        const slots = await getSlots();
-        const slot = slots.find((s) => s.id === booking.slotId);
-        if (slot) {
-          slotLabel = `${slot.date} · ${slot.startTime}–${slot.endTime}`;
+      // ── SKILL PURCHASE ──────────────────────────────────────────────────────
+      if (type === "skill_purchase") {
+        const skillId = session.metadata?.skillId;
+        if (!skillId) {
+          console.error("skill_purchase session missing skillId:", session.id);
+          break;
         }
+
+        // Idempotency: skip if already processed
+        const existing = await getPurchaseBySessionId(session.id);
+        if (existing) {
+          console.log("Skill purchase already processed, skipping:", session.id);
+          break;
+        }
+
+        const skill = await getSkillById(skillId);
+        if (!skill) {
+          console.error("Skill not found for purchase:", skillId);
+          break;
+        }
+
+        const name = session.metadata?.customerName ?? "";
+        const email =
+          session.customer_details?.email ??
+          session.customer_email ??
+          session.metadata?.customerEmail ??
+          "";
+
+        if (!email) {
+          console.error("No email found in session:", session.id);
+          break;
+        }
+
+        // Create purchase record
+        await createPurchase({
+          name,
+          email,
+          skillId,
+          stripeSessionId: session.id,
+          amount: session.amount_total ?? 0,
+          status: "success",
+        });
+
+        // Generate 24-hour signed URL for the email link
+        let downloadUrl = "";
+        try {
+          downloadUrl = await generateSignedUrl(skill.fileUrl, 24 * 60 * 60 * 1000);
+        } catch (err) {
+          console.error("Failed to generate signed URL:", err);
+        }
+
+        if (downloadUrl) {
+          try {
+            await sendSkillPurchaseEmail(name, email, skill, downloadUrl);
+          } catch (err) {
+            console.error("Failed to send skill purchase email:", err);
+          }
+        }
+
+        break;
       }
 
-      // Send confirmation emails
-      try {
-        await Promise.all([
-          sendOwnerNotification(booking, slotLabel),
-          sendUserConfirmation(booking, slotLabel),
-        ]);
-      } catch (err) {
-        console.error("Email send failed:", err);
+      // ── CUSTOM SKILL REQUEST ─────────────────────────────────────────────────
+      if (type === "custom_request") {
+        const requestId = session.metadata?.requestId;
+        if (!requestId) {
+          console.error("custom_request session missing requestId:", session.id);
+          break;
+        }
+
+        const customRequest = await getCustomRequestById(requestId);
+        if (!customRequest) {
+          console.error("CustomRequest not found:", requestId);
+          break;
+        }
+
+        // Idempotency: skip if already moved past pending_payment
+        if (customRequest.status !== "pending_payment") {
+          console.log("Custom request already processed, skipping:", requestId);
+          break;
+        }
+
+        // Activate the request and record the Stripe session ID
+        await updateCustomRequestStatus(requestId, "pending", session.id);
+
+        try {
+          await Promise.all([
+            sendCustomRequestUserConfirmation(
+              customRequest.name,
+              customRequest.email,
+              customRequest.requirement
+            ),
+            sendCustomRequestAdminNotification(
+              customRequest.name,
+              customRequest.email,
+              customRequest.phone,
+              customRequest.requirement
+            ),
+          ]);
+        } catch (err) {
+          console.error("Failed to send custom request emails:", err);
+        }
+
+        break;
+      }
+
+      // ── BOOKING (legacy / default flow) ──────────────────────────────────────
+      {
+        const bookingId = session.metadata?.bookingId;
+        if (!bookingId) {
+          console.error(
+            "checkout.session.completed: no recognized metadata type and no bookingId. Session:",
+            session.id
+          );
+          break;
+        }
+
+        const booking = await activateBooking(bookingId);
+        if (!booking) {
+          console.error("Booking not found:", bookingId);
+          break;
+        }
+
+        if (booking.slotId) {
+          await markSlotBooked(booking.slotId);
+        }
+
+        let slotLabel: string | undefined;
+        if (booking.slotId) {
+          const slots = await getSlots();
+          const slot = slots.find((s) => s.id === booking.slotId);
+          if (slot) {
+            slotLabel = `${slot.date} · ${slot.startTime}–${slot.endTime}`;
+          }
+        }
+
+        try {
+          await Promise.all([
+            sendOwnerNotification(booking, slotLabel),
+            sendUserConfirmation(booking, slotLabel),
+          ]);
+        } catch (err) {
+          console.error("Email send failed:", err);
+        }
       }
 
       break;
     }
 
     case "checkout.session.expired": {
-      // User abandoned checkout — clean up the ghost booking and free the slot
       const session = event.data.object;
-      const bookingId = session.metadata?.bookingId;
+      const type = session.metadata?.type;
 
+      if (type === "custom_request") {
+        // Leave the pending_payment record in Firestore — it's inert.
+        // If requestId is available we could mark it cancelled, but it's not worth the noise.
+        break;
+      }
+
+      // Legacy booking flow cleanup
+      const bookingId = session.metadata?.bookingId;
       if (!bookingId) break;
 
       const booking = await getBookingById(bookingId);
       if (!booking) break;
 
-      // Only clean up if still awaiting payment (not already completed)
       if (booking.status === "awaiting_payment") {
         await updateBookingStatus(bookingId, "cancelled");
-
         if (booking.slotId) {
           await markSlotAvailable(booking.slotId);
         }
@@ -120,8 +245,6 @@ export async function POST(request: Request) {
       const failedBooking = await getBookingById(failedBookingId);
       if (!failedBooking) break;
 
-      // Don't cancel — session is still open, customer can retry.
-      // Notify owner so they're aware of the failed attempt.
       try {
         await sendPaymentFailedOwnerAlert(failedBooking);
       } catch (err) {
@@ -167,7 +290,6 @@ export async function POST(request: Request) {
     }
 
     case "charge.refunded": {
-      // Issued a refund from Stripe dashboard — find the booking and cancel it
       const charge = event.data.object;
       const paymentIntentId =
         typeof charge.payment_intent === "string"
@@ -176,7 +298,6 @@ export async function POST(request: Request) {
 
       if (!paymentIntentId) break;
 
-      // Look up the checkout session to retrieve the bookingId from metadata
       const sessions = await stripe.checkout.sessions.list({
         payment_intent: paymentIntentId,
         limit: 1,
@@ -190,7 +311,6 @@ export async function POST(request: Request) {
 
       await updateBookingStatus(bookingId, "cancelled");
 
-      // Free the slot so it can be rebooked
       if (booking.slotId) {
         await markSlotAvailable(booking.slotId);
       }

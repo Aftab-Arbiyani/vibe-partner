@@ -19,6 +19,7 @@ export default function Navbar() {
           <Link href="/#services" className="hover:text-white transition-colors">Services</Link>
           <Link href="/#how-it-works" className="hover:text-white transition-colors">How It Works</Link>
           <Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link>
+          <Link href="/skills" className="hover:text-white transition-colors">Skills</Link>
           <Link href="/#faq" className="hover:text-white transition-colors">FAQ</Link>
         </div>
 
@@ -56,6 +57,7 @@ export default function Navbar() {
           <Link href="/#services" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Services</Link>
           <Link href="/#how-it-works" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">How It Works</Link>
           <Link href="/#pricing" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Pricing</Link>
+          <Link href="/skills" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Skills</Link>
           <Link href="/#faq" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">FAQ</Link>
           <Link
             href="/book"
