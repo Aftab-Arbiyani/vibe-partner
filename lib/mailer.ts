@@ -133,6 +133,90 @@ export async function sendCancellationEmail(
   });
 }
 
+export async function sendSkillPurchaseEmail(
+  name: string,
+  email: string,
+  skill: { title: string; description: string },
+  downloadUrl: string
+) {
+  await transporter.sendMail({
+    from: `"VibePartner Skills" <${process.env.GMAIL_USER}>`,
+    to: email,
+    subject: `Your skill is ready: ${skill.title}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+        <h2 style="color:#6366f1">Your download is ready, ${name}!</h2>
+        <p>Thank you for your purchase. Click the button below to download your skill.</p>
+        <table style="border-collapse:collapse;width:100%;margin-bottom:24px">
+          <tr><td style="padding:8px;font-weight:bold">Skill</td><td style="padding:8px">${skill.title}</td></tr>
+          <tr style="background:#f9fafb"><td style="padding:8px;font-weight:bold">Description</td><td style="padding:8px">${skill.description}</td></tr>
+        </table>
+        <p>
+          <a href="${downloadUrl}" style="background:#6366f1;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">
+            Download Now →
+          </a>
+        </p>
+        <p style="margin-top:16px;color:#6b7280;font-size:14px">
+          This link expires in 24 hours. If you need it again, reply to this email and we'll send a fresh link.
+        </p>
+        <p style="color:#9ca3af;font-size:14px">— The VibePartner team</p>
+      </div>
+    `,
+  });
+}
+
+export async function sendCustomRequestUserConfirmation(
+  name: string,
+  email: string,
+  requirement: string
+) {
+  await transporter.sendMail({
+    from: `"VibePartner Skills" <${process.env.GMAIL_USER}>`,
+    to: email,
+    subject: "We received your custom skill request",
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+        <h2 style="color:#6366f1">Custom Skill Request Received, ${name}!</h2>
+        <p>Thank you for your advance payment. We've received your request and will get started soon.</p>
+        <table style="border-collapse:collapse;width:100%;margin-bottom:24px">
+          <tr><td style="padding:8px;font-weight:bold;vertical-align:top">Your Requirement</td><td style="padding:8px">${requirement.replace(/\n/g, "<br>")}</td></tr>
+        </table>
+        <p>We'll be in touch within <strong>24–48 hours</strong> to confirm details and timeline.</p>
+        <p>In the meantime, reply to this email if you have anything to add.</p>
+        <p style="color:#9ca3af;font-size:14px">— The VibePartner team</p>
+      </div>
+    `,
+  });
+}
+
+export async function sendCustomRequestAdminNotification(
+  name: string,
+  email: string,
+  phone: string,
+  requirement: string
+) {
+  await transporter.sendMail({
+    from: `"VibePartner Skills" <${process.env.GMAIL_USER}>`,
+    to: process.env.OWNER_EMAIL,
+    subject: `New custom skill request from ${name}`,
+    html: `
+      <h2>New Custom Skill Request (PAID)</h2>
+      <table style="border-collapse:collapse;width:100%;max-width:600px">
+        <tr><td style="padding:8px;font-weight:bold;color:#6366f1">Name</td><td style="padding:8px">${name}</td></tr>
+        <tr style="background:#f9fafb"><td style="padding:8px;font-weight:bold;color:#6366f1">Email</td><td style="padding:8px"><a href="mailto:${email}">${email}</a></td></tr>
+        <tr><td style="padding:8px;font-weight:bold;color:#6366f1">Phone</td><td style="padding:8px">${phone}</td></tr>
+        <tr style="background:#f9fafb"><td style="padding:8px;font-weight:bold;color:#6366f1;vertical-align:top">Requirement</td><td style="padding:8px">${requirement.replace(/\n/g, "<br>")}</td></tr>
+      </table>
+      <p style="margin-top:16px;color:#ef4444;font-weight:bold">Action required: follow up with the customer within 24–48 hours.</p>
+      <p style="margin-top:24px">
+        <a href="${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:9002"}/admin" style="background:#6366f1;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold">
+          View in Admin →
+        </a>
+      </p>
+    `,
+  });
+}
+
 export async function sendUserConfirmation(
   booking: Booking,
   slotLabel?: string,
