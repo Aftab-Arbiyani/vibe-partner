@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getBookings, getSlots } from "@/lib/data";
-import { getSkills, getCustomRequests } from "@/lib/skills-data";
+import { getSkills, getCustomRequests, getPurchases } from "@/lib/skills-data";
 import AdminBookingsPanel from "./AdminBookingsPanel";
 import AdminSkillsPanel from "./AdminSkillsPanel";
 import AdminCustomRequestsPanel from "./AdminCustomRequestsPanel";
+import AdminPurchasesPanel from "./AdminPurchasesPanel";
 import AdminLogout from "./AdminLogout";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +15,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-type Tab = "bookings" | "skills" | "requests";
+type Tab = "bookings" | "skills" | "requests" | "purchases";
 const TABS: { id: Tab; label: string }[] = [
   { id: "bookings", label: "Bookings" },
   { id: "skills", label: "Skills" },
   { id: "requests", label: "Custom Requests" },
+  { id: "purchases", label: "Purchases" },
 ];
 
 export default async function AdminPage({
@@ -27,14 +29,17 @@ export default async function AdminPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const { tab: rawTab = "bookings" } = await searchParams;
-  const tab = (["bookings", "skills", "requests"].includes(rawTab) ? rawTab : "bookings") as Tab;
+  const tab = (["bookings", "skills", "requests", "purchases"].includes(rawTab) ? rawTab : "bookings") as Tab;
 
-  const [bookings, slots, skills, customRequests] = await Promise.all([
+  const [bookings, slots, skills, customRequests, purchases] = await Promise.all([
     getBookings(),
     getSlots(),
     getSkills(),
     getCustomRequests(),
+    getPurchases(),
   ]);
+
+  const skillsMap = Object.fromEntries(skills.map((s) => [s.id, s]));
 
   const visibleBookings = bookings
     .filter((b) => b.status !== "awaiting_payment");
@@ -89,6 +94,11 @@ export default async function AdminPage({
                   {customRequests.length}
                 </span>
               )}
+              {id === "purchases" && purchases.length > 0 && (
+                <span className="ml-1.5 bg-white/10 text-xs px-1.5 py-0.5 rounded-full">
+                  {purchases.length}
+                </span>
+              )}
             </Link>
           ))}
         </div>
@@ -102,6 +112,9 @@ export default async function AdminPage({
         )}
         {tab === "requests" && (
           <AdminCustomRequestsPanel requests={customRequests} />
+        )}
+        {tab === "purchases" && (
+          <AdminPurchasesPanel purchases={purchases} skillsMap={skillsMap} />
         )}
       </div>
     </main>

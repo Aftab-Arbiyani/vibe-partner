@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import { COUNTRIES } from "@/data/countries";
@@ -50,6 +51,10 @@ const SERVICES = [
   },
 ];
 
+const detectTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+const emptyTimezone = () => "";
+const noSubscribe = () => () => {};
+
 function formatSlotLabel(slot: Slot) {
   const date = new Date(slot.date + "T00:00:00");
   const dateStr = date.toLocaleDateString("en-US", {
@@ -60,39 +65,34 @@ function formatSlotLabel(slot: Slot) {
   return `${dateStr} · ${slot.startTime}–${slot.endTime}`;
 }
 
-export default function BookPage() {
-  const [step, setStep] = useState(1);
-  const [serviceType, setServiceType] = useState<ServiceType | null>(null);
-  const [slots, setSlots] = useState<Slot[]>([]);
+function BookPageInner() {
+  const searchParams = useSearchParams();
+  const serviceParam = searchParams.get("service");
+  const initialService: ServiceType | null =
+    serviceParam === "async" || serviceParam === "live" || serviceParam === "monthly" || serviceParam === "pro"
+      ? (serviceParam as ServiceType)
+      : null;
+
+  const [step, setStep] = useState<number>(initialService ? 2 : 1);
+  const [serviceType, setServiceType] = useState<ServiceType | null>(initialService);
+  const [slots, setSlots] = useState<Slot[] | null>(null);
   const [slotId, setSlotId] = useState("");
   const [description, setDescription] = useState("");
   const [repoLink, setRepoLink] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [country, setCountry] = useState("");
-  const [timezone, setTimezone] = useState("");
-  const [slotsLoading, setSlotsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-    const params = new URLSearchParams(window.location.search);
-    const service = params.get("service");
-    if (service === "async" || service === "live" || service === "monthly" || service === "pro") {
-      setServiceType(service);
-      setStep(2);
-    }
-  }, []);
+  const timezone = useSyncExternalStore(noSubscribe, detectTimezone, emptyTimezone);
+  const slotsLoading = serviceType === "live" && slots === null;
 
   useEffect(() => {
     if (serviceType === "live") {
-      setSlotsLoading(true);
       fetch("/api/availability")
         .then((r) => r.json())
         .then(setSlots)
-        .catch(() => setSlots([]))
-        .finally(() => setSlotsLoading(false));
+        .catch(() => setSlots([]));
     }
   }, [serviceType]);
 
@@ -134,7 +134,7 @@ export default function BookPage() {
   const canProceedStep2 =
     description.trim().length >= 10 &&
     !slotsLoading &&
-    (serviceType !== "live" || slots.length === 0 || slotId !== "");
+    (serviceType !== "live" || (slots ?? []).length === 0 || slotId !== "");
 
   return (
     <>
@@ -298,13 +298,13 @@ export default function BookPage() {
                       <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-5 text-gray-500 text-sm text-center animate-pulse">
                         Loading available slots…
                       </div>
-                    ) : slots.length === 0 ? (
+                    ) : (slots ?? []).length === 0 ? (
                       <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-5 text-gray-500 text-sm text-center">
                         No slots available right now. Select Async Fix instead, or check back soon.
                       </div>
                     ) : (
                       <div className="grid gap-3">
-                        {slots.map((slot) => (
+                        {(slots ?? []).map((slot) => (
                           <button
                             key={slot.id}
                             type="button"
@@ -385,11 +385,11 @@ export default function BookPage() {
                       {SERVICES.find((s) => s.id === serviceType)?.title}
                     </span>
                   </p>
-                  {slotId && slots.length > 0 && (
+                  {slotId && (slots ?? []).length > 0 && (
                     <p>
                       <span className="text-gray-500">Slot:</span>{" "}
                       <span className="text-white">
-                        {formatSlotLabel(slots.find((s) => s.id === slotId)!)}
+                        {formatSlotLabel((slots ?? []).find((s) => s.id === slotId)!)}
                       </span>
                     </p>
                   )}
@@ -419,5 +419,13 @@ export default function BookPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function BookPage() {
+  return (
+    <Suspense>
+      <BookPageInner />
+    </Suspense>
   );
 }

@@ -36,6 +36,59 @@ export default async function SkillsPage() {
           </p>
         </section>
 
+        {/* How it works */}
+        <section className="max-w-6xl mx-auto px-6 pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Skills card */}
+            <div className="rounded-2xl bg-white/5 border border-white/10 p-8">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-xl mb-5">
+                ⚡
+              </div>
+              <h2 className="text-xl font-semibold text-white mb-3">What are Skills?</h2>
+              <p className="text-gray-400 text-sm leading-relaxed mb-5">
+                Skills are <span className="text-gray-200">.md instruction files</span> you drop into your project. Claude Code or Cursor reads them and gains new slash commands — covering tasks like code review, test generation, refactoring, and documentation — without any plugin installs or config.
+              </p>
+              <ol className="space-y-2 text-sm text-gray-400">
+                {[
+                  "Download the skill file",
+                  "Place it in your repo (e.g. .claude/skills/)",
+                  "Invoke it with a slash command in Claude Code or Cursor",
+                ].map((step, i) => (
+                  <li key={step} className="flex items-start gap-3">
+                    <span className="mt-0.5 w-5 h-5 rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-xs flex items-center justify-center flex-shrink-0">
+                      {i + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Agents card */}
+            <div className="rounded-2xl bg-white/5 border border-white/10 p-8">
+              <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-xl mb-5">
+                🤖
+              </div>
+              <h2 className="text-xl font-semibold text-white mb-3">What are AI Agents?</h2>
+              <p className="text-gray-400 text-sm leading-relaxed mb-5">
+                Agents are <span className="text-gray-200">multi-step AI workflows</span> that chain research, planning, and implementation into a single command. Instead of prompting back and forth, you run the agent and it handles the full cycle — from reading your codebase to opening a PR.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-400">
+                {[
+                  "Automate repetitive dev cycles end-to-end",
+                  "Orchestrate multiple AI calls with shared context",
+                  "Run unattended — ship while you sleep",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span className="text-purple-400 mt-0.5">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
         <SkillsSearch skills={skills} />
 
         {/* Custom Skill Request */}
