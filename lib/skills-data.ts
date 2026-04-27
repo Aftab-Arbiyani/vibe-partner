@@ -64,6 +64,13 @@ export async function createPurchase(
   return purchase;
 }
 
+export async function getPurchases(): Promise<Purchase[]> {
+  const snap = await db.collection("purchases").get();
+  return snap.docs
+    .map((doc) => doc.data() as Purchase)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
 export async function getPurchaseBySessionId(
   sessionId: string
 ): Promise<Purchase | null> {

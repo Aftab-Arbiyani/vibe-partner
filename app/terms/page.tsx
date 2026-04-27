@@ -14,16 +14,17 @@ export default function TermsPage() {
       <main className="min-h-screen bg-[#0D0D0D] pt-28 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold text-white mb-2">Terms of Service</h1>
-          <p className="text-gray-500 text-sm mb-12">Last updated: April 21, 2026</p>
+          <p className="text-gray-500 text-sm mb-12">Last updated: April 26, 2026</p>
 
           <div className="space-y-10 text-gray-400 leading-relaxed">
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">1. Agreement</h2>
               <p>
-                By accessing our website or booking a session with VibePartner (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;),
-                you agree to be bound by these Terms of Service. If you do not agree, please do not use
-                our services. These terms apply to all visitors, clients, and anyone who purchases or
-                uses our services.
+                By accessing our website, booking a session, downloading a skill or agent workflow file,
+                or submitting a custom skill request with VibePartner (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), you agree
+                to be bound by these Terms of Service. If you do not agree, please do not use our
+                services. These terms apply to all visitors, clients, and anyone who purchases or uses
+                our services.
               </p>
             </section>
 
@@ -59,6 +60,24 @@ export default function TermsPage() {
                   <span className="text-white font-medium">AI-Guided Build</span> — for founders with a
                   business idea and access to AI coding tools who need a co-pilot to scope, prompt, and
                   guide the build until their product is live.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Skills &amp; Agent Workflows (free)</span> —
+                  downloadable <code className="text-gray-300 bg-white/5 px-1 rounded">.md</code> skill
+                  files that add slash commands to Claude Code or Cursor. Free skills are available
+                  immediately with no payment required.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Skills &amp; Agent Workflows (premium)</span> —
+                  more advanced skill files and multi-step AI agent workflows available for a one-time
+                  purchase. The file is delivered to your email after successful payment.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Custom Skill or Agent Request</span> — a
+                  bespoke skill file or agent workflow built specifically for your stack and requirements.
+                  A $20 advance payment is collected to secure your spot and cover scoping. We confirm
+                  scope, timeline, and any remaining balance before work begins, and deliver the finished
+                  file within the agreed timeframe.
                 </li>
               </ul>
               <p className="mt-4">
@@ -100,6 +119,18 @@ export default function TermsPage() {
                   <span className="text-white font-medium">AI-Guided Build</span> — priced on a
                   per-project basis, confirmed in writing before work begins.
                 </li>
+                <li>
+                  <span className="text-white font-medium">Skills &amp; Agent Workflows (free)</span> —
+                  no charge; download directly from the Skills page.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Skills &amp; Agent Workflows (premium)</span> —
+                  one-time payment per file, priced as listed on the Skills page at the time of purchase.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Custom Skill or Agent Request</span> — $20
+                  advance payment at checkout, with any remaining balance confirmed before work begins.
+                </li>
               </ul>
               <p className="mt-4">
                 You are responsible for any taxes applicable in your jurisdiction. Prices may change
@@ -134,6 +165,18 @@ export default function TermsPage() {
                 <li>
                   <span className="text-white font-medium">Free introductory session</span> — no charge
                   applies to your first session; no refund is applicable.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Premium skill &amp; agent workflow downloads</span> —
+                  all sales are final. Because the file is delivered digitally immediately after payment,
+                  we do not offer refunds once the download has been made available. If you experience a
+                  technical issue with the file, contact us and we will resolve it promptly.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Custom skill or agent request — advance payment</span> —
+                  the $20 advance is non-refundable once we have begun scoping your request. If you cancel
+                  before we confirm scope, a full refund will be issued. If we are unable to deliver the
+                  agreed output, we will refund the full amount paid.
                 </li>
               </ul>
               <p className="mt-4">
@@ -180,6 +223,16 @@ export default function TermsPage() {
                 specifically for your session become your property upon receipt of full payment. We
                 retain no ongoing rights to those deliverables. General knowledge, techniques, and
                 approaches we use in our work remain ours.
+              </p>
+              <p className="mt-4">
+                Skill files and agent workflow files (both free and premium) are licensed to you for
+                personal and internal team use. You may use them in your own projects and modify them
+                freely. You may not resell, sublicense, redistribute, or publish them as your own
+                product — whether free or paid — without our written permission.
+              </p>
+              <p className="mt-4">
+                Custom-built skill files and agent workflows are delivered as your property upon receipt
+                of full payment. The same usage restrictions above apply.
               </p>
               <p className="mt-4">
                 VibePartner&apos;s website content, brand, name, and marketing materials are our exclusive

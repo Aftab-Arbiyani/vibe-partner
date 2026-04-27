@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       <main className="min-h-screen bg-[#0D0D0D] pt-28 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold text-white mb-2">Privacy Policy</h1>
-          <p className="text-gray-500 text-sm mb-12">Last updated: April 21, 2026</p>
+          <p className="text-gray-500 text-sm mb-12">Last updated: April 26, 2026</p>
 
           <div className="space-y-10 text-gray-400 leading-relaxed">
             <section>
@@ -22,9 +22,10 @@ export default function PrivacyPage() {
               <p>
                 VibePartner (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) provides human-powered technical support — including
                 async bug fixes, live pair programming, monthly retainers, and AI-guided product builds —
-                for founders and developers using AI-assisted coding tools such as Cursor, Lovable, Bolt,
-                v0, and Replit. This Privacy Policy explains what personal data we collect when you use
-                our website and services, how we use it, and your rights regarding that data.
+                as well as downloadable skill files and AI agent workflows, and custom-built skills on
+                request, for founders and developers using AI-assisted coding tools such as Cursor,
+                Lovable, Bolt, v0, and Replit. This Privacy Policy explains what personal data we collect
+                when you use our website and services, how we use it, and your rights regarding that data.
               </p>
             </section>
 
@@ -50,8 +51,21 @@ export default function PrivacyPage() {
                   to help us diagnose or fix your issue.
                 </li>
                 <li>
+                  <span className="text-white font-medium">Skill and agent purchases</span> — when you
+                  purchase a premium skill or agent workflow, we collect your name and email address to
+                  fulfil the download and send you a copy of the file. Purchase records including the
+                  Stripe session ID and amount paid are stored in our database.
+                </li>
+                <li>
+                  <span className="text-white font-medium">Custom skill requests</span> — when you submit
+                  a custom skill or agent workflow request, we collect your name, email address, phone
+                  number, and a description of your requirements. This information is stored so we can
+                  scope, price, and deliver your custom build.
+                </li>
+                <li>
                   <span className="text-white font-medium">Payment information</span> — billing details
-                  processed securely by Stripe. We never store your card number or CVV.
+                  processed securely by Stripe for all services, including skill purchases and custom
+                  request advance payments. We never store your card number or CVV.
                 </li>
                 <li>
                   <span className="text-white font-medium">Communications</span> — emails, messages, or
@@ -70,6 +84,14 @@ export default function PrivacyPage() {
                 <li>To confirm, schedule, deliver, and follow up on your booked sessions.</li>
                 <li>To diagnose bugs, review your repository, and deliver written fixes or guidance.</li>
                 <li>To process payments and send receipts via Stripe.</li>
+                <li>
+                  To fulfil skill and agent workflow purchases — delivering the file to your email
+                  address after successful payment.
+                </li>
+                <li>
+                  To scope, price, build, and deliver custom skill or agent workflow requests, and to
+                  communicate with you about your request status and timeline.
+                </li>
                 <li>
                   To communicate with you about your session — including confirmations, reminders, fix
                   delivery, and support queries.
@@ -141,13 +163,27 @@ export default function PrivacyPage() {
                   </a>.
                 </li>
                 <li>
+                  <span className="text-white font-medium">Firebase / Google Cloud</span> — we use
+                  Firebase Firestore to store booking, purchase, and custom request records, and Firebase
+                  Storage to host downloadable skill and agent workflow files. Data is governed by{" "}
+                  <a
+                    href="https://firebase.google.com/support/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    Google&apos;s Firebase Privacy Policy
+                  </a>.
+                </li>
+                <li>
                   <span className="text-white font-medium">GitHub / repository platforms</span> — if you
                   share a repository link or grant us access, we use it solely to diagnose and fix your
                   issue. We do not retain access after your session is complete.
                 </li>
                 <li>
                   <span className="text-white font-medium">Email provider</span> — for transactional
-                  emails including booking confirmations, fix deliveries, and support replies.
+                  emails including booking confirmations, skill file deliveries, fix deliveries, and
+                  support replies.
                 </li>
               </ul>
             </section>
