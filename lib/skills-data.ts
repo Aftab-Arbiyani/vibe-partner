@@ -40,7 +40,10 @@ export interface CustomRequest {
 // Skills
 
 export async function getSkills(): Promise<Skill[]> {
-  const snap = await db.collection("skills").get();
+  const snap = await db
+    .collection("skills")
+    .where("isPremium", "==", true)
+    .get();
   return snap.docs.map((doc) => doc.data() as Skill);
 }
 
@@ -53,7 +56,7 @@ export async function getSkillById(id: string): Promise<Skill | undefined> {
 // Purchases
 
 export async function createPurchase(
-  data: Omit<Purchase, "id" | "createdAt">
+  data: Omit<Purchase, "id" | "createdAt">,
 ): Promise<Purchase> {
   const purchase: Purchase = {
     ...data,
@@ -68,11 +71,14 @@ export async function getPurchases(): Promise<Purchase[]> {
   const snap = await db.collection("purchases").get();
   return snap.docs
     .map((doc) => doc.data() as Purchase)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 }
 
 export async function getPurchaseBySessionId(
-  sessionId: string
+  sessionId: string,
 ): Promise<Purchase | null> {
   const snap = await db
     .collection("purchases")
@@ -86,7 +92,7 @@ export async function getPurchaseBySessionId(
 // Custom Requests
 
 export async function createCustomRequest(
-  data: Omit<CustomRequest, "id" | "createdAt">
+  data: Omit<CustomRequest, "id" | "createdAt">,
 ): Promise<CustomRequest> {
   const req: CustomRequest = {
     ...data,
@@ -103,7 +109,7 @@ export async function getCustomRequests(): Promise<CustomRequest[]> {
 }
 
 export async function getCustomRequestById(
-  id: string
+  id: string,
 ): Promise<CustomRequest | null> {
   const doc = await db.collection("customRequests").doc(id).get();
   if (!doc.exists) return null;
@@ -113,7 +119,7 @@ export async function getCustomRequestById(
 export async function updateCustomRequestStatus(
   id: string,
   status: CustomRequest["status"],
-  stripeSessionId?: string
+  stripeSessionId?: string,
 ): Promise<void> {
   const update: Partial<CustomRequest> = { status };
   if (stripeSessionId !== undefined) update.stripeSessionId = stripeSessionId;

@@ -135,7 +135,7 @@ export default function SkillsSearch({ skills }: Props) {
       )}
 
       {/* Free Skills */}
-      {!noResults && (
+      {!true && (
         <section className="max-w-6xl mx-auto px-6 pb-20" id="free">
           <div className="flex items-center gap-3 mb-8">
             <span className="w-8 h-8 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm font-bold">
@@ -219,7 +219,7 @@ export default function SkillsSearch({ skills }: Props) {
             <span className="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-sm font-bold">
               ★
             </span>
-            <h2 className="text-2xl font-bold">Premium Skills</h2>
+            <h2 className="text-2xl font-bold">Skills</h2>
             <span className="bg-indigo-600/20 text-indigo-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-500/30">
               One-time payment
             </span>
